@@ -13,9 +13,30 @@ import ProductHeader from "@/ui/Product/ProductHeader";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import styles from "./ProductSection.module.scss";
 import { Product } from "@/types/Products_section";
+import Link from "next/link";
+
+// Type cho CategoryGroup
+interface CategoryGroup {
+  _id: string;
+  title: string;
+  slug: {
+    current: string;
+    _type?: string;
+  };
+  description?: string;
+  categories?: Array<{
+    _id: string;
+    title: string;
+    slug: { current: string };
+    type?: string;
+    material?: string;
+    description?: string;
+  }>;
+}
 
 interface ExtendedProductSectionProps extends ProductSectionProps {
   sectionId?: string;
+  categoryGroups?: CategoryGroup[]; // Thêm prop categoryGroups
 }
 
 export default function ProductSection({
@@ -23,6 +44,7 @@ export default function ProductSection({
   products,
   description,
   sectionId,
+  categoryGroups,
 }: ExtendedProductSectionProps) {
   const router = useRouter();
   const [hoveredId, setHoveredId] = React.useState<string | null>(null);
@@ -101,6 +123,15 @@ export default function ProductSection({
     setSwiperReady(true);
   };
 
+  // Lấy slug của categoryGroup đầu tiên (hoặc logic khác tùy yêu cầu)
+  const getViewAllHref = () => {
+    if (categoryGroups && categoryGroups.length > 0) {
+      const firstCategoryGroup = categoryGroups[0];
+      return `/collections/${firstCategoryGroup.slug.current}`;
+    }
+    return "#"; // fallback nếu không có categoryGroups
+  };
+
   return (
     <div className={`${styles.wrapper} ${styles.responsiveHover}`}>
       <ProductHeader title={title} description={description} />
@@ -172,6 +203,9 @@ export default function ProductSection({
               </div>
             )}
           />
+          <Link href={getViewAllHref()} className={styles.viewAll}>
+            Xem tất cả
+          </Link>
         </div>
       </div>
     </div>

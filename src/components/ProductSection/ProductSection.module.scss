@@ -16,3 +16,8 @@
 .productImage {
   transition: all 0.3s ease-in-out;
 }
+.viewAll {
+  @include flex-center;
+  gap: 5px;
+  margin-top: 20px;
+}

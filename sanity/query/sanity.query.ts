@@ -28,6 +28,21 @@ export async function getPage(slug: string = "/") {
           sectionTitle,
           displayType,
           limit,
+          // Thêm categoryGroups ở đây - ngang hàng với products
+          "categoryGroups": *[_type == "categoryGroup"] | order(title asc) {
+            _id,
+            title,
+            slug,
+            description,
+            categories[]->{
+              _id,
+              title,
+              slug,
+              type,
+              material,
+              description
+            }
+          },
           "products": *[
             _type == "product" &&
             (^.displayType == "all" ||
@@ -113,6 +128,21 @@ export async function getPage(slug: string = "/") {
               description,
               displayType,
               limit,
+              // Thêm categoryGroups ở đây cũng
+              "categoryGroups": *[_type == "categoryGroup"] | order(title asc) {
+                _id,
+                title,
+                slug,
+                description,
+                categories[]->{
+                  _id,
+                  title,
+                  slug,
+                  type,
+                  material,
+                  description
+                }
+              },
               "products": *[
                 _type == "product" &&
                 (^.displayType == "all" ||
@@ -260,6 +290,82 @@ export async function getPage(slug: string = "/") {
           }
         }
       }
+    }`,
+    { slug }
+  );
+}
+
+export async function getCategoryGroupWithProducts(
+  slug: string,
+  page: number = 1
+) {
+  return client.fetch(
+    groq`*[_type == "categoryGroup" && slug.current == $slug][0] {
+      _id,
+      title,
+      slug,
+      description,
+      categories[]->{
+        _id,
+        title,
+        slug,
+        type,
+        material,
+        description
+      },
+      "products": *[_type == "product" && count(categories[_ref in ^.categories[]._ref]) > 0] | order(_createdAt desc) {
+        _id,
+        title,
+        slug,
+        price,
+        originalPrice,
+        msp,
+        description {
+          subtitle,
+          mainDescription,
+          details[] {
+            label,
+            value
+          },
+          styling[],
+          tags[]
+        },
+        thumbnail {
+          defaultImage {
+            asset->{url},
+            alt
+          },
+          hoverImage {
+            asset->{url},
+            alt
+          }
+        },
+        categories[]->{
+          title,
+          slug,
+          type,
+          material
+        },
+        colors[]{
+          colorCode,
+          image{
+            asset->{url},
+            alt
+          },
+          detailImages[]{
+            asset->{url},
+            alt
+          },
+          sizes[]{
+            size,
+            quantity
+          }
+        },
+        isNew,
+        isBestseller,
+        inStock
+      },
+      "totalProducts": count(*[_type == "product" && count(categories[_ref in ^.categories[]._ref]) > 0])
     }`,
     { slug }
   );

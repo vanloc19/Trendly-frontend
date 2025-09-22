@@ -8,7 +8,23 @@ import {
   ProductSection as ProductSectionType,
 } from "../../../sanity/types/sanity-codegen";
 
-type ProductSectionWithProducts = ProductSectionType & { products?: Product[] };
+type ProductSectionWithProducts = ProductSectionType & {
+  products?: Product[];
+  categoryGroups?: {
+    _id: string;
+    title: string;
+    slug: { current: string; _type?: string };
+    description?: string;
+    categories?: Array<{
+      _id: string;
+      title: string;
+      slug: { current: string };
+      type?: string;
+      material?: string;
+      description?: string;
+    }>;
+  }[];
+};
 
 export default async function Home() {
   const pageData = await getPage("/");
@@ -32,11 +48,15 @@ export default async function Home() {
     "6c2fc8079296"
   );
 
+  console.log("newProductSections", newProductSections);
+
   // Lấy dữ liệu BestsellerProductSections (SẢN PHẨM BÁN CHẠY)
   const BestsellerProductSections = getSectionById<ProductSectionWithProducts>(
     pageData.body,
     "b475ab074c96"
   );
+
+  console.log("BestsellerProductSections", BestsellerProductSections);
 
   if (!heroSection) {
     return (
@@ -78,7 +98,8 @@ export default async function Home() {
             title={newProductSections.sectionTitle || "Sản phẩm mới"}
             description={newProductSections.description}
             products={newProductSections.products ?? []}
-            sectionId="newProducts" // Truyền sectionId
+            categoryGroups={newProductSections?.categoryGroups ?? []}
+            sectionId="newProducts"
           />
         )}
       </section>
@@ -95,6 +116,7 @@ export default async function Home() {
             }
             description={BestsellerProductSections.description}
             products={BestsellerProductSections.products ?? []}
+            categoryGroups={newProductSections?.categoryGroups ?? []}
             sectionId="bestsellerProducts"
           />
         )}
