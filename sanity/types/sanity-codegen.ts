@@ -198,11 +198,70 @@ export interface Product extends SanityDocument {
   categories?: Array<SanityKeyedReference<Category>>;
 
   /**
-   * Description — `text`
+   * Product Description — `object`
    *
    *
    */
-  description?: string;
+  description?: {
+    _type: "description";
+    /**
+     * Phụ đề sản phẩm — `string`
+     *
+     * VD: Thanh lịch – Thời trang – Dễ phối đồ
+     */
+    subtitle?: string;
+
+    /**
+     * Mô tả chính — `text`
+     *
+     * Mô tả chi tiết về sản phẩm, có thể sử dụng **text** để in đậm
+     */
+    mainDescription?: string;
+
+    /**
+     * Chi tiết sản phẩm — `array`
+     *
+     * Thông tin chi tiết dạng danh sách
+     */
+    details?: Array<
+      SanityKeyed<{
+        /**
+         * Tên thuộc tính — `string`
+         *
+         *
+         */
+        label?:
+          | "Chất liệu"
+          | "Form dáng"
+          | "Màu sắc"
+          | "Size"
+          | "Chi tiết"
+          | "Xuất xứ"
+          | "Thương hiệu";
+
+        /**
+         * Giá trị — `string`
+         *
+         *
+         */
+        value?: string;
+      }>
+    >;
+
+    /**
+     * Phong cách gợi ý — `array`
+     *
+     * Cách phối đồ, mix & match
+     */
+    styling?: Array<SanityKeyed<string>>;
+
+    /**
+     * Tags/Hashtags — `array`
+     *
+     * Các hashtags cho sản phẩm
+     */
+    tags?: Array<SanityKeyed<string>>;
+  };
 
   /**
    * New Product — `boolean`
@@ -291,6 +350,20 @@ export interface Category extends SanityDocument {
    *
    */
   slug?: { _type: "slug"; current: string };
+
+  /**
+   * Loại sản phẩm — `string`
+   *
+   *
+   */
+  type?: string;
+
+  /**
+   * Vật liệu — `string`
+   *
+   *
+   */
+  material?: string;
 
   /**
    * Mô tả — `text`

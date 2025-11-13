@@ -16,7 +16,7 @@
 .productImageContainer {
   position: relative;
   flex: 2;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .imageContainer {
@@ -24,7 +24,7 @@
   width: 100%;
   aspect-ratio: 3/4;
   margin-bottom: 8px;
-  overflow: hidden;
+  overflow: visible;
 
   @include respond(md) {
     aspect-ratio: 4/5;

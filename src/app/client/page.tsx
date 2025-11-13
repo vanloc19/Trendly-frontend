@@ -8,7 +8,9 @@ import {
   ProductSection as ProductSectionType,
 } from "../../../sanity/types/sanity-codegen";
 
-type ProductSectionWithProducts = ProductSectionType & { products?: Product[] };
+type ProductSectionWithProducts = ProductSectionType & {
+  products?: Product[];
+};
 
 export default async function Home() {
   const pageData = await getPage("/");
@@ -78,7 +80,8 @@ export default async function Home() {
             title={newProductSections.sectionTitle || "Sản phẩm mới"}
             description={newProductSections.description}
             products={newProductSections.products ?? []}
-            sectionId="newProducts" // Truyền sectionId
+            displayType="new"
+            sectionId="newProducts"
           />
         )}
       </section>
@@ -95,6 +98,7 @@ export default async function Home() {
             }
             description={BestsellerProductSections.description}
             products={BestsellerProductSections.products ?? []}
+            displayType="bestseller"
             sectionId="bestsellerProducts"
           />
         )}
