@@ -299,76 +299,126 @@ export async function getCategoryGroupWithProducts(
   slug: string,
   page: number = 1
 ) {
-  return client.fetch(
-    groq`*[_type == "categoryGroup" && slug.current == $slug][0] {
-      _id,
-      title,
-      slug,
-      description,
-      categories[]->{
-        _id,
-        title,
-        slug,
-        type,
-        material,
-        description
-      },
-      "products": *[_type == "product" && count(categories[_ref in ^.categories[]._ref]) > 0] | order(_createdAt desc) {
-        _id,
-        title,
-        slug,
-        price,
-        originalPrice,
-        msp,
-        description {
-          subtitle,
-          mainDescription,
-          details[] {
-            label,
-            value
-          },
-          styling[],
-          tags[]
-        },
-        thumbnail {
-          defaultImage {
-            asset->{url},
-            alt
-          },
-          hoverImage {
-            asset->{url},
-            alt
-          }
-        },
-        categories[]->{
+  // Viết tách biệt cho mỗi case thay vì dùng conditional
+  if (slug === "new") {
+    return client.fetch(
+      groq`{
+        "title": "Sản phẩm mới",
+        "description": "Khám phá những sản phẩm mới nhất",
+        "products": *[_type == "product" && isNew == true] | order(_createdAt desc) {
+          _id,
           title,
           slug,
-          type,
-          material
-        },
-        colors[]{
-          colorCode,
-          image{
-            asset->{url},
-            alt
+          price,
+          originalPrice,
+          msp,
+          description {
+            subtitle,
+            mainDescription,
+            details[] { label, value },
+            styling[],
+            tags[]
           },
-          detailImages[]{
-            asset->{url},
-            alt
+          thumbnail {
+            defaultImage { asset->{url}, alt },
+            hoverImage { asset->{url}, alt }
           },
-          sizes[]{
-            size,
-            quantity
-          }
+          categories[]->{ title, slug, type, material },
+          colors[]{
+            colorCode,
+            image{ asset->{url}, alt },
+            detailImages[]{ asset->{url}, alt },
+            sizes[]{ size, quantity }
+          },
+          isNew,
+          isBestseller,
+          inStock
         },
-        isNew,
-        isBestseller,
-        inStock
-      },
-      "totalProducts": count(*[_type == "product" && count(categories[_ref in ^.categories[]._ref]) > 0])
-    }`,
-    { slug }
-  );
+        "totalProducts": count(*[_type == "product" && isNew == true])
+      }`
+    );
+  }
+
+  if (slug === "bestsellers") {
+    return client.fetch(
+      groq`{
+        "title": "Sản phẩm bán chạy",
+        "description": "Những sản phẩm được yêu thích nhất",
+        "products": *[_type == "product" && isBestseller == true] | order(_createdAt desc) {
+          _id,
+          title,
+          slug,
+          price,
+          originalPrice,
+          msp,
+          description {
+            subtitle,
+            mainDescription,
+            details[] { label, value },
+            styling[],
+            tags[]
+          },
+          thumbnail {
+            defaultImage { asset->{url}, alt },
+            hoverImage { asset->{url}, alt }
+          },
+          categories[]->{ title, slug, type, material },
+          colors[]{
+            colorCode,
+            image{ asset->{url}, alt },
+            detailImages[]{ asset->{url}, alt },
+            sizes[]{ size, quantity }
+          },
+          isNew,
+          isBestseller,
+          inStock
+        },
+        "totalProducts": count(*[_type == "product" && isBestseller == true])
+      }`
+    );
+  }
+
+  if (slug === "all") {
+    return client.fetch(
+      groq`{
+        "title": "Tất cả sản phẩm",
+        "description": "Toàn bộ sản phẩm trong cửa hàng",
+        "products": *[_type == "product"] | order(_createdAt desc) {
+          _id,
+          title,
+          slug,
+          price,
+          originalPrice,
+          msp,
+          description {
+            subtitle,
+            mainDescription,
+            details[] { label, value },
+            styling[],
+            tags[]
+          },
+          thumbnail {
+            defaultImage { asset->{url}, alt },
+            hoverImage { asset->{url}, alt }
+          },
+          categories[]->{ title, slug, type, material },
+          colors[]{
+            colorCode,
+            image{ asset->{url}, alt },
+            detailImages[]{ asset->{url}, alt },
+            sizes[]{ size, quantity }
+          },
+          isNew,
+          isBestseller,
+          inStock
+        },
+        "totalProducts": count(*[_type == "product"])
+      }`
+    );
+  }
+
+  // Return null nếu slug không match
+  return null;
 }
 
 // Lấy 1 sản phẩm theo slug

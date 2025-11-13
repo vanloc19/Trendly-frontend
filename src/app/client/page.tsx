@@ -10,20 +10,6 @@ import {
 
 type ProductSectionWithProducts = ProductSectionType & {
   products?: Product[];
-  categoryGroups?: {
-    _id: string;
-    title: string;
-    slug: { current: string; _type?: string };
-    description?: string;
-    categories?: Array<{
-      _id: string;
-      title: string;
-      slug: { current: string };
-      type?: string;
-      material?: string;
-      description?: string;
-    }>;
-  }[];
 };
 
 export default async function Home() {
@@ -48,15 +34,11 @@ export default async function Home() {
     "6c2fc8079296"
   );
 
-  console.log("newProductSections", newProductSections);
-
   // Lấy dữ liệu BestsellerProductSections (SẢN PHẨM BÁN CHẠY)
   const BestsellerProductSections = getSectionById<ProductSectionWithProducts>(
     pageData.body,
     "b475ab074c96"
   );
-
-  console.log("BestsellerProductSections", BestsellerProductSections);
 
   if (!heroSection) {
     return (
@@ -98,7 +80,7 @@ export default async function Home() {
             title={newProductSections.sectionTitle || "Sản phẩm mới"}
             description={newProductSections.description}
             products={newProductSections.products ?? []}
-            categoryGroups={newProductSections?.categoryGroups ?? []}
+            displayType="new"
             sectionId="newProducts"
           />
         )}
@@ -116,7 +98,7 @@ export default async function Home() {
             }
             description={BestsellerProductSections.description}
             products={BestsellerProductSections.products ?? []}
-            categoryGroups={newProductSections?.categoryGroups ?? []}
+            displayType="bestseller"
             sectionId="bestsellerProducts"
           />
         )}

@@ -1,42 +1,17 @@
 "use client";
 
 import React from "react";
-import {
-  ProductSectionProps,
-  ProductImage as ProductImageType,
-} from "@/types/Products_section";
+import { ProductSectionProps } from "@/types/Products_section";
 import ProductUi from "@/ui/Product";
-import { getSlug } from "@/utils/getSlug";
-import { useRouter } from "next/navigation";
+import { useProductInteractions } from "@/hooks/useProductInteractions";
 import SwiperSlide from "@/components/SwiperSlide";
 import ProductHeader from "@/ui/Product/ProductHeader";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import styles from "./ProductSection.module.scss";
-import { Product } from "@/types/Products_section";
 import Link from "next/link";
-
-// Type cho CategoryGroup
-interface CategoryGroup {
-  _id: string;
-  title: string;
-  slug: {
-    current: string;
-    _type?: string;
-  };
-  description?: string;
-  categories?: Array<{
-    _id: string;
-    title: string;
-    slug: { current: string };
-    type?: string;
-    material?: string;
-    description?: string;
-  }>;
-}
 
 interface ExtendedProductSectionProps extends ProductSectionProps {
   sectionId?: string;
-  categoryGroups?: CategoryGroup[]; // Thêm prop categoryGroups
+  displayType?: "new" | "bestseller" | "all";
 }
 
 export default function ProductSection({
@@ -44,42 +19,22 @@ export default function ProductSection({
   products,
   description,
   sectionId,
-  categoryGroups,
+  displayType, // Nhận displayType từ props
 }: ExtendedProductSectionProps) {
-  const router = useRouter();
-  const [hoveredId, setHoveredId] = React.useState<string | null>(null);
-  const [hoverShowActions, setHoverShowActions] = React.useState<string | null>(
-    null
-  );
   const [swiperReady, setSwiperReady] = React.useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
 
-  const [activeColors, setActiveColors] = React.useState<
-    Record<string, number | null>
-  >(() => {
-    const initial: Record<string, number | null> = {};
-    products.forEach((product) => {
-      initial[product._id] =
-        product.colors && product.colors.length > 0 ? 0 : null;
-    });
-    return initial;
-  });
+  const {
+    hoveredId,
+    hoverShowActions,
+    activeColors,
+    activeColorImages,
+    handleMouseEnter,
+    handleMouseLeave,
+    handleSetHoverShowActions,
+    handleSetActiveColor,
+    handleProductClick,
+  } = useProductInteractions(products);
 
-  const [activeColorImages, setActiveColorImages] = React.useState<
-    Record<string, ProductImageType | null>
-  >(() => {
-    const initial: Record<string, ProductImageType | null> = {};
-    products.forEach((product) => {
-      if (product.colors && product.colors.length > 0) {
-        initial[product._id] = product.colors[0].image || null;
-      } else {
-        initial[product._id] = null;
-      }
-    });
-    return initial;
-  });
-
-  // Effect to handle swiper initialization
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setSwiperReady(true);
@@ -88,48 +43,22 @@ export default function ProductSection({
     return () => clearTimeout(timer);
   }, []);
 
-  const handleMouseEnter = (id: string) => !isMobile && setHoveredId(id);
-  const handleMouseLeave = () => !isMobile && setHoveredId(null);
-
-  const handleSetHoverShowActions = (id: string | null) => {
-    if (!isMobile) {
-      setHoverShowActions(id);
-    }
-  };
-
-  const handleSetActiveColor = (
-    id: string,
-    colorIdx: number | null,
-    image?: ProductImageType | null
-  ) => {
-    setActiveColors((prev) => ({ ...prev, [id]: colorIdx }));
-    setActiveColorImages((prev) => ({ ...prev, [id]: image || null }));
-  };
-
-  const handleProductClick = (product: Product, event: React.MouseEvent) => {
-    const target = event.target as HTMLElement;
-
-    if (target.closest("button") || target.closest('[role="button"]')) {
-      return;
-    }
-
-    const slug = getSlug(product);
-    if (slug) {
-      router.push(`/products/${slug}`);
-    }
-  };
-
   const handleSwiperInit = () => {
     setSwiperReady(true);
   };
 
-  // Lấy slug của categoryGroup đầu tiên (hoặc logic khác tùy yêu cầu)
+  // Tạo link dựa trên displayType
   const getViewAllHref = () => {
-    if (categoryGroups && categoryGroups.length > 0) {
-      const firstCategoryGroup = categoryGroups[0];
-      return `/collections/${firstCategoryGroup.slug.current}`;
+    switch (displayType) {
+      case "new":
+        return "/collections/san-pham-moi";
+      case "bestseller":
+        return "/collections/ban-chay-nhat";
+      case "all":
+        return "/collections/tat-ca-san-pham";
+      default:
+        return "/collections/tat-ca-san-pham";
     }
-    return "#"; // fallback nếu không có categoryGroups
   };
 
   return (
