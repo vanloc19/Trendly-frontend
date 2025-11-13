@@ -24,13 +24,13 @@ interface CategoryGroup {
 }
 
 interface CollectionPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default async function CollectionPage({ params }: CollectionPageProps) {
-  const { slug } = params;
+  const { slug } = await params;
 
   // Map URL slug sang Sanity query slug
   const getSanitySlug = (urlSlug: string) => {
