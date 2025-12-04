@@ -1,4 +1,4 @@
-import { createRoutes } from "@/utils/getRoutes";
+import { createRoutes } from "@/utils/createRoutes";
 
 export default createRoutes({
   ACCOUNT_USER: "/user/AccountUser",
