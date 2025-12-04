@@ -1,4 +1,4 @@
-import { createRoutes } from "@/utils/getRoutes";
+import { createRoutes } from "@/utils/createRoutes";
 
 export default createRoutes({
   // kiểm tra user và má hóa phiên giao dịch
