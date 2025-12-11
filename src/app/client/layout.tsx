@@ -27,6 +27,10 @@ const lora = Lora({
 export const metadata: Metadata = {
   title: "Trendly - Mua sắm thả ga",
   description: "Website mua sắm thời trang Trendly...",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/favicon.png",
+  },
   applicationName: "Trendly Store",
   openGraph: {
     title: "Trendly - Mua sắm thả ga",
